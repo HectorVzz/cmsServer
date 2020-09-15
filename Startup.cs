@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using back.Services.BodyDataService;
+using back.Services.NavDataService;
 using back.Services.PostService;
 using dotnet.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,6 +37,8 @@ namespace back
              services.AddDbContext<DataContext> (x => x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
+            services.AddScoped<IBodyDataService, BodyDataService>();
+            services.AddScoped<INavDataService, NavDataService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
