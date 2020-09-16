@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -7,6 +8,7 @@ using back.Dtos.Post;
 using back.Models;
 using dotnet.Data;
 using dotnet.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace back.Services.PostService
@@ -15,11 +17,13 @@ namespace back.Services.PostService
   {
     private readonly IMapper _mapper;
     private readonly DataContext _context;
+    private readonly IWebHostEnvironment _environment;
 
-    public PostService(IMapper mapper, DataContext context)
+    public PostService(IMapper mapper, DataContext context, IWebHostEnvironment environment)
     {
       _mapper = mapper;
       _context = context;
+      _environment = environment;
     }
     public async Task<ServiceResponse<List<GetPostDto>>> AddPost(AddPostDto newPost)
     {
@@ -28,6 +32,18 @@ namespace back.Services.PostService
       {
         Post post = _mapper.Map<Post>(newPost);
         post.Date = DateTime.Now;
+
+        if (newPost.Image.Length > 0)
+        {
+          string filePath = Path.Combine("wwwroot","images",
+            DateTime.Now.Ticks + Path.GetRandomFileName() + newPost.Image.FileName);
+          using (var stream = System.IO.File.Create(filePath))
+          {
+            await newPost.Image.CopyToAsync(stream);
+            post.Image = filePath.Substring(8,filePath.Length - 8);
+          }
+        }
+        
 
         await _context.Posts.AddAsync(post);
         await _context.SaveChangesAsync();
@@ -72,6 +88,7 @@ namespace back.Services.PostService
       try
       {
         Post postToRemove = await _context.Posts.FirstOrDefaultAsync((p) => p.Id == id);
+        File.Delete("wwwroot\\" + postToRemove.Image);
         _context.Remove<Post>(postToRemove);
         await _context.SaveChangesAsync();
         serviceResponse.Data = (_context.Posts.Select(p => _mapper.Map<GetPostDto>(p))).ToList();

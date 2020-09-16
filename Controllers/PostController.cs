@@ -10,35 +10,36 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace back.Controllers
 {
-  // [Authorize]
   [ApiController]
   [Route("[controller]")]
   public class PostController : ControllerBase
   {
     private readonly IPostService _postService;
 
-    public PostController(IPostService postService) {
+    public PostController(IPostService postService)
+    {
       _postService = postService;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllPosts()
     {
-      return Ok(await _postService.GetAllPost()); 
+      return Ok(await _postService.GetAllPost());
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> getPost(int id)
     {
-      return Ok(await _postService.GetPost(id)); 
+      return Ok(await _postService.GetPost(id));
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddPost(AddPostDto newPost)
+    public async Task<IActionResult> AddPost([FromForm] AddPostDto newPost)
     {
       return Ok(await _postService.AddPost(newPost));
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePost(int id)
     {
