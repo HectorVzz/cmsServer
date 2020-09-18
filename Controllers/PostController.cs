@@ -33,6 +33,7 @@ namespace back.Controllers
       return Ok(await _postService.GetPost(id));
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddPost([FromForm] AddPostDto newPost)
     {
@@ -44,6 +45,13 @@ namespace back.Controllers
     public async Task<IActionResult> DeletePost(int id)
     {
       return Ok(await _postService.DeletePost(id));
+    }
+
+    [Authorize]
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> UpdatePost([FromForm]UpdatePostDto updatePostDto, int id)
+    {
+      return Ok(await _postService.UpdatePost(updatePostDto,id));
     }
   }
 }

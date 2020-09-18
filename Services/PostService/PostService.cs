@@ -35,15 +35,15 @@ namespace back.Services.PostService
 
         if (newPost.Image.Length > 0)
         {
-          string filePath = Path.Combine("wwwroot","images",
+          string filePath = Path.Combine("wwwroot", "images",
             DateTime.Now.Ticks + Path.GetRandomFileName() + newPost.Image.FileName);
           using (var stream = System.IO.File.Create(filePath))
           {
             await newPost.Image.CopyToAsync(stream);
-            post.Image = filePath.Substring(8,filePath.Length - 8);
+            post.Image = filePath.Substring(8, filePath.Length - 8);
           }
         }
-        
+
 
         await _context.Posts.AddAsync(post);
         await _context.SaveChangesAsync();
@@ -101,9 +101,36 @@ namespace back.Services.PostService
       return serviceResponse;
     }
 
-    public Task<ServiceResponse<GetPostDto>> UpdatePost(int id)
+    public async Task<ServiceResponse<GetPostDto>> UpdatePost(UpdatePostDto editedPost, int id)
     {
-      throw new System.NotImplementedException();
+      ServiceResponse<GetPostDto> serviceResponse = new ServiceResponse<GetPostDto>();
+      try
+      {
+        Post postToEdit = await _context.Posts.FirstOrDefaultAsync((p) => p.Id == id);
+        postToEdit.Title = editedPost.Title;
+        postToEdit.Description = editedPost.Description;
+        postToEdit.Date = DateTime.Now;
+        if (editedPost.Image != null)
+        {
+          File.Delete("wwwroot\\" + postToEdit.Image);
+          string filePath = Path.Combine("wwwroot", "images",
+            DateTime.Now.Ticks + Path.GetRandomFileName() + editedPost.Image.FileName);
+          using (var stream = System.IO.File.Create(filePath))
+          {
+            await editedPost.Image.CopyToAsync(stream);
+            postToEdit.Image = filePath.Substring(8, filePath.Length - 8);
+          }
+        }
+        _context.Posts.Update(postToEdit);
+        await _context.SaveChangesAsync();
+        serviceResponse.Data = _mapper.Map<GetPostDto>(postToEdit);
+      }
+      catch (System.Exception ex)
+      {
+        serviceResponse.Success = false;
+        serviceResponse.Message = "No se pudo encontrar el post a editar";
+      }
+      return serviceResponse;
     }
   }
 }

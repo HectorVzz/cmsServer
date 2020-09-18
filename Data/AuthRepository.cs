@@ -24,16 +24,17 @@ namespace dotnet.Data
     public async Task<ServiceResponse<string>> Login(string username, string password)
     {
       ServiceResponse<string> response = new ServiceResponse<string>();
-      User user = await _context.Users.FirstOrDefaultAsync((u) => u.Username == username);
-      bool valitaded = VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt);
-
-      if (!valitaded)
+      try
+      {
+        User user = await _context.Users.FirstOrDefaultAsync((u) => u.Username == username);
+        bool valitaded = VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt);
+        response.Data = CreateToken(user);
+      }
+      catch (System.Exception ex)
       {
         response.Success = false;
-        response.Message = "wrongPassword";
-        return response;
+        response.Message = "Wrong user or password";
       }
-      response.Data = CreateToken(user);
       return response;
     }
 

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using back.Dtos.BodyData;
 using back.Services.BodyDataService;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,12 @@ namespace back.Controllers
     public async Task<IActionResult> GetBodyData()
     {
       return Ok(await _bodyDataService.GetBodyData()); 
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateBodyData(UpdateBodyDataDto updateBodyDataDto)
+    {
+      return Ok(await _bodyDataService.UpdateBodyData(updateBodyDataDto));
     }
   }
 }

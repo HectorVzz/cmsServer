@@ -11,7 +11,7 @@ namespace back.Services.PostService
       Task<ServiceResponse<List<GetPostDto>>> GetAllPost();
       Task<ServiceResponse<GetPostDto>> GetPost(int id);
       Task<ServiceResponse<List<GetPostDto>>> AddPost(AddPostDto post);
-      Task<ServiceResponse<GetPostDto>> UpdatePost(int id);
+      Task<ServiceResponse<GetPostDto>> UpdatePost(UpdatePostDto editedPost, int id);
       Task<ServiceResponse<List<GetPostDto>>> DeletePost(int id);
     
     }
